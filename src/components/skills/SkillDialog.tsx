@@ -9,10 +9,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Label } from '@/components/ui/label';
 import { useEffect } from 'react';
 import { showError } from '@/utils/toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const skillSchema = z.object({
   name: z.string().min(2, 'Skill name is required'),
-  category: z.string().optional(),
+  category: z.enum(['Hard Skill', 'Soft Skill'], {
+    required_error: 'You must select a category.',
+  }),
 });
 
 type SkillFormValues = z.infer<typeof skillSchema>;
@@ -26,17 +30,19 @@ interface SkillDialogProps {
 
 export const SkillDialog = ({ skill, isOpen, onClose, onSave }: SkillDialogProps) => {
   const { user } = useAuth();
-  const { control, handleSubmit, reset } = useForm<SkillFormValues>({
+  const form = useForm<SkillFormValues>({
     resolver: zodResolver(skillSchema),
   });
 
   useEffect(() => {
-    if (skill) {
-      reset(skill);
-    } else {
-      reset({ name: '', category: '' });
+    if (isOpen) {
+      if (skill) {
+        form.reset(skill);
+      } else {
+        form.reset({ name: '', category: undefined });
+      }
     }
-  }, [skill, reset]);
+  }, [skill, isOpen, form]);
 
   const onSubmit = async (data: SkillFormValues) => {
     if (!user) return;
@@ -66,22 +72,59 @@ export const SkillDialog = ({ skill, isOpen, onClose, onSave }: SkillDialogProps
         <DialogHeader>
           <DialogTitle>{skill ? 'Edit Skill' : 'Add New Skill'}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Skill Name</Label>
-            <Controller name="name" control={control} render={({ field }) => <Input id="name" {...field} />} />
-          </div>
-          <div>
-            <Label htmlFor="category">Category (e.g., Frontend, Backend)</Label>
-            <Controller name="category" control={control} render={({ field }) => <Input id="category" {...field} />} />
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save</Button>
-          </DialogFooter>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Skill Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Hard Skill" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Hard Skill</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Soft Skill" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Soft Skill</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
