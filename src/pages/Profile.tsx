@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { SocialMediaDialog } from '@/components/profile/SocialMediaDialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional().or(z.literal('')),
@@ -60,18 +61,30 @@ const Profile = () => {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    values: {
-      name: profile?.name ?? '',
-      bio: profile?.bio ?? '',
-      location: profile?.location ?? '',
-      photo_url: profile?.photo_url ?? '',
+    defaultValues: {
+      name: '',
+      bio: '',
+      location: '',
+      photo_url: '',
     },
-    resetOptions: { keepValues: false }
   });
+
+  // Use useEffect to reset form values once profile data is loaded
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        name: profile.name ?? '',
+        bio: profile.bio ?? '',
+        location: profile.location ?? '',
+        photo_url: profile.photo_url ?? '',
+      });
+    }
+  }, [profile, form]);
 
   const mutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
+      // Invalidate query to refetch the latest data, which will trigger the useEffect above
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       showSuccess('Profile updated successfully!');
     },
