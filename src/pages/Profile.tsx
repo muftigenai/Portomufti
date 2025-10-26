@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -18,11 +18,13 @@ import { HobbyDialog } from '@/components/profile/HobbyDialog';
 import { AchievementDialog } from '@/components/profile/AchievementDialog';
 import { format } from 'date-fns';
 import { SocialMediaDialog } from '@/components/profile/SocialMediaDialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Loader2 } from 'lucide-react';
 
 const profileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional(),
-  bio: z.string().max(200, 'Bio must be at most 200 characters').optional(),
-  location: z.string().max(50, 'Location must be at most 50 characters').optional(),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional().or(z.literal('')),
+  bio: z.string().max(200, 'Bio must be at most 200 characters').optional().or(z.literal('')),
+  location: z.string().max(50, 'Location must be at most 50 characters').optional().or(z.literal('')),
   photo_url: z.string().optional(),
 });
 
@@ -35,7 +37,12 @@ const fetchProfile = async (userId: string) => {
 };
 
 const updateProfile = async ({ userId, ...updates }: ProfileFormValues & { userId: string }) => {
-  const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
+  // Filter out undefined/null values before sending to Supabase update
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined && value !== null)
+  );
+  
+  const { error } = await supabase.from('profiles').update(cleanUpdates).eq('id', userId);
   if (error) throw new Error(error.message);
 };
 
@@ -51,7 +58,7 @@ const Profile = () => {
     enabled: !!user,
   });
 
-  const { control, handleSubmit, setValue } = useForm<ProfileFormValues>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     values: {
       name: profile?.name ?? '',
@@ -82,41 +89,73 @@ const Profile = () => {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Profil Diri</CardTitle>
-            <CardDescription>Kelola informasi profil Anda di sini.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <AvatarUpload
-              url={profile?.photo_url}
-              lastUpdated={profile?.updated_at}
-              onUpload={(filePath) => {
-                setValue('photo_url', filePath, { shouldDirty: true });
-                handleSubmit(onSubmit)();
-              }}
-            />
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <Controller name="name" control={control} render={({ field }) => <Input id="name" {...field} />} />
-            </div>
-            <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-              <Controller name="bio" control={control} render={({ field }) => <Textarea id="bio" {...field} placeholder="Tell us a little about yourself" />} />
-            </div>
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-              <Controller name="location" control={control} render={({ field }) => <Input id="location" {...field} />} />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil Diri</CardTitle>
+              <CardDescription>Kelola informasi profil Anda di sini.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <AvatarUpload
+                url={profile?.photo_url}
+                lastUpdated={profile?.updated_at}
+                onUpload={(filePath) => {
+                  form.setValue('photo_url', filePath, { shouldDirty: true });
+                  form.handleSubmit(onSubmit)();
+                }}
+              />
+              
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Tell us a little about yourself" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Save Changes'}
+              </Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
 
       <CrudSection
         tableName="education"
