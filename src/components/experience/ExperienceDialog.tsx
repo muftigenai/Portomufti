@@ -1,4 +1,4 @@
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -134,7 +133,6 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                           mode="single" 
                           selected={field.value} 
                           onSelect={field.onChange} 
-                          initialFocus 
                           captionLayout="dropdown"
                           fromYear={1950}
                           toYear={new Date().getFullYear()}
@@ -168,7 +166,6 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                           mode="single" 
                           selected={field.value ?? undefined} 
                           onSelect={field.onChange} 
-                          initialFocus 
                           captionLayout="dropdown"
                           fromYear={1950}
                           toYear={new Date().getFullYear()}
