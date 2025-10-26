@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Code } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from 'react';
+import { ProjectDetailDialog } from './ProjectDetailDialog';
 
 interface ProjectsSectionProps {
   userId: string;
@@ -20,6 +22,9 @@ const fetchPublicProjects = async (userId: string) => {
 };
 
 const ProjectsSection = ({ userId }: ProjectsSectionProps) => {
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+
   const { data: projects, isLoading } = useQuery({
     queryKey: ['publicProjects', userId],
     queryFn: () => fetchPublicProjects(userId),
@@ -29,6 +34,11 @@ const ProjectsSection = ({ userId }: ProjectsSectionProps) => {
     if (!path) return '/placeholder.svg';
     const { data } = supabase.storage.from('project-images').getPublicUrl(path);
     return data.publicUrl;
+  };
+
+  const handleCardClick = (project: any) => {
+    setSelectedProject(project);
+    setIsDetailOpen(true);
   };
 
   return (
@@ -48,7 +58,11 @@ const ProjectsSection = ({ userId }: ProjectsSectionProps) => {
       ) : projects && projects.length > 0 ? (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <Card key={project.id} className="overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]">
+            <Card 
+              key={project.id} 
+              className="overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
+              onClick={() => handleCardClick(project)}
+            >
               <div className="h-48 w-full overflow-hidden">
                 <img 
                   src={getImageUrl(project.image_url)} 
@@ -60,21 +74,19 @@ const ProjectsSection = ({ userId }: ProjectsSectionProps) => {
                 <CardTitle className="text-xl">{project.title}</CardTitle>
                 <CardDescription className="line-clamp-2">{project.description}</CardDescription>
               </CardHeader>
-              <CardFooter className="flex justify-between">
-                {project.project_url && (
-                  <Button asChild variant="outline">
-                    <a href={project.project_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" /> View Project
-                    </a>
-                  </Button>
-                )}
-              </CardFooter>
+              {/* Menghapus CardFooter karena detail sekarang ada di dialog */}
             </Card>
           ))}
         </div>
       ) : (
         <p className="text-center text-gray-500">No projects available yet.</p>
       )}
+
+      <ProjectDetailDialog
+        project={selectedProject}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+      />
     </section>
   );
 };
