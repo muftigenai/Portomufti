@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User } from 'lucide-react';
+import { User, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 interface HeroSectionProps {
   profile: any;
@@ -47,12 +48,19 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
       <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-fade-in delay-100">
         {profile.bio || 'Seorang profesional yang bersemangat dalam bidang teknologi dan pengembangan web. Selamat datang di portfolio saya.'}
       </p>
-      <button 
-        onClick={() => scrollToSection('projects')}
-        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mx-auto"
-      >
-        Lihat Proyek
-      </button>
+      <div className="flex justify-center space-x-4">
+        <button 
+          onClick={() => scrollToSection('projects')}
+          className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        >
+          Lihat Proyek
+        </button>
+        <Button asChild variant="outline" className="px-8 py-3 text-base font-medium border-gray-900 text-gray-900 hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          <a href="/my-cv.pdf" download="CV_ATS_Format.pdf">
+            <Download className="h-5 w-5 mr-2" /> Download CV
+          </a>
+        </Button>
+      </div>
     </section>
   );
 };
