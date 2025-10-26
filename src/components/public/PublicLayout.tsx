@@ -1,5 +1,5 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import { Github, Linkedin, Mail, Menu, X, LogIn } from 'lucide-react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +7,7 @@ import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
 
 // Fetch social media links for the public profile
 const fetchSocialLinks = async (userId: string) => {
@@ -28,6 +29,8 @@ const NAV_ITEMS = [
 ];
 
 const PublicLayout = () => {
+  const { session, loading } = useAuth(); // Get auth status
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Fetch public user ID (assuming the first profile is the public one)
@@ -71,6 +74,11 @@ const PublicLayout = () => {
     setIsMobileMenuOpen(false);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   const SocialLink = ({ platform, url, Icon }: { platform: string, url: string, Icon: React.ElementType }) => (
     <a 
       href={url} 
@@ -94,6 +102,38 @@ const PublicLayout = () => {
       case 'tiktok': return Link;
       default: return Link;
     }
+  };
+
+  const AuthButton = () => {
+    if (loading) {
+      return <Button size="sm" disabled>Loading...</Button>;
+    }
+
+    if (session) {
+      return (
+        <div className="flex space-x-2">
+          <Button asChild size="sm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+            <a href="/dashboard">
+              <User className="h-4 w-4 mr-2" />
+              Dashboard
+            </a>
+          </Button>
+          <Button size="sm" variant="destructive" onClick={handleLogout}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Log Out
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
+        <a href="/login">
+          <LogIn className="h-4 w-4 mr-2" />
+          Admin Login
+        </a>
+      </Button>
+    );
   };
 
   return (
@@ -123,7 +163,7 @@ const PublicLayout = () => {
             ))}
           </nav>
 
-          {/* Social Links & Admin Login Button & Mobile Menu Button */}
+          {/* Social Links & Auth Button & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
             <div className="hidden lg:flex space-x-4">
               {socialLinks?.map(link => (
@@ -136,13 +176,10 @@ const PublicLayout = () => {
               ))}
             </div>
             
-            {/* Admin Login Button (Desktop/Tablet) */}
-            <Button asChild size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700">
-              <a href="/login">
-                <LogIn className="h-4 w-4 mr-2" />
-                Admin Login
-              </a>
-            </Button>
+            {/* Auth Button (Desktop/Tablet) */}
+            <div className="hidden sm:block">
+              <AuthButton />
+            </div>
 
             <Button 
               variant="ghost" 
@@ -176,13 +213,10 @@ const PublicLayout = () => {
               {item.name}
             </button>
           ))}
-          {/* Admin Login Button (Mobile) */}
-          <Button asChild className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
-            <a href="/login">
-              <LogIn className="h-4 w-4 mr-2" />
-              Admin Login
-            </a>
-          </Button>
+          {/* Auth Button (Mobile) */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <AuthButton />
+          </div>
         </nav>
       </div>
 
