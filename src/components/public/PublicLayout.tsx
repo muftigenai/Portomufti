@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User } from 'lucide-react';
+import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User, Instagram, Link } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
