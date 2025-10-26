@@ -11,6 +11,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Skeleton } from '@/components/ui/skeleton';
 import { showError, showSuccess } from '@/utils/toast';
 import AvatarUpload from '@/components/profile/AvatarUpload';
+import { CrudSection } from '@/components/profile/CrudSection';
+import { EducationDialog } from '@/components/profile/EducationDialog';
+import { OrgExperienceDialog } from '@/components/profile/OrgExperienceDialog';
+import { HobbyDialog } from '@/components/profile/HobbyDialog';
+import { AchievementDialog } from '@/components/profile/AchievementDialog';
+import { format } from 'date-fns';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional(),
@@ -22,24 +28,17 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 const fetchProfile = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
-
-  if (error && error.code !== 'PGRST116') { // PGRST116: row not found
-    throw new Error(error.message);
-  }
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  if (error && error.code !== 'PGRST116') throw new Error(error.message);
   return data;
 };
 
 const updateProfile = async ({ userId, ...updates }: ProfileFormValues & { userId: string }) => {
   const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 };
+
+const formatDate = (dateStr: string | null) => dateStr ? format(new Date(dateStr), 'MMM yyyy') : 'N/A';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -51,7 +50,7 @@ const Profile = () => {
     enabled: !!user,
   });
 
-  const { control, handleSubmit, reset, setValue } = useForm<ProfileFormValues>({
+  const { control, handleSubmit, setValue } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     values: {
       name: profile?.name ?? '',
@@ -59,9 +58,7 @@ const Profile = () => {
       location: profile?.location ?? '',
       photo_url: profile?.photo_url ?? '',
     },
-    resetOptions: {
-        keepValues: false,
-    }
+    resetOptions: { keepValues: false }
   });
 
   const mutation = useMutation({
@@ -70,9 +67,7 @@ const Profile = () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       showSuccess('Profile updated successfully!');
     },
-    onError: (error) => {
-      showError(error.message);
-    },
+    onError: (error) => showError(error.message),
   });
 
   const onSubmit = (data: ProfileFormValues) => {
@@ -81,76 +76,85 @@ const Profile = () => {
   };
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-8 w-1/2" />
-          <Skeleton className="h-4 w-3/4" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </CardContent>
-        <CardFooter>
-          <Skeleton className="h-10 w-24" />
-        </CardFooter>
-      </Card>
-    );
+    return <Skeleton className="h-96 w-full" />;
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Profil Diri</CardTitle>
-          <CardDescription>Kelola informasi profil Anda di sini.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <AvatarUpload
-            url={profile?.photo_url}
-            onUpload={(filePath) => {
-              setValue('photo_url', filePath, { shouldDirty: true });
-              // Immediately submit the form to save the new avatar URL
-              handleSubmit(onSubmit)();
-            }}
-          />
-          
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => <Input id="name" {...field} />}
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Profil Diri</CardTitle>
+            <CardDescription>Kelola informasi profil Anda di sini.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <AvatarUpload
+              url={profile?.photo_url}
+              onUpload={(filePath) => {
+                setValue('photo_url', filePath, { shouldDirty: true });
+                handleSubmit(onSubmit)();
+              }}
             />
-          </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <Controller name="name" control={control} render={({ field }) => <Input id="name" {...field} />} />
+            </div>
+            <div>
+              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+              <Controller name="bio" control={control} render={({ field }) => <Textarea id="bio" {...field} placeholder="Tell us a little about yourself" />} />
+            </div>
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <Controller name="location" control={control} render={({ field }) => <Input id="location" {...field} />} />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
 
-          <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-            <Controller
-              name="bio"
-              control={control}
-              render={({ field }) => <Textarea id="bio" {...field} placeholder="Tell us a little about yourself" />}
-            />
-          </div>
+      <CrudSection
+        tableName="education"
+        title="Pendidikan"
+        columns={[
+          { key: 'institution', label: 'Institution' },
+          { key: 'degree', label: 'Degree' },
+          { key: 'period', label: 'Period', render: (item) => `${formatDate(item.start_date)} - ${formatDate(item.end_date)}` },
+        ]}
+        dialogComponent={EducationDialog}
+      />
 
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-            <Controller
-              name="location"
-              control={control}
-              render={({ field }) => <Input id="location" {...field} />}
-            />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </CardFooter>
-      </Card>
-    </form>
+      <CrudSection
+        tableName="organizational_experience"
+        title="Pengalaman Organisasi"
+        columns={[
+          { key: 'organization', label: 'Organization' },
+          { key: 'role', label: 'Role' },
+          { key: 'period', label: 'Period', render: (item) => `${formatDate(item.start_date)} - ${formatDate(item.end_date)}` },
+        ]}
+        dialogComponent={OrgExperienceDialog}
+      />
+
+      <CrudSection
+        tableName="achievements"
+        title="Prestasi"
+        columns={[
+          { key: 'title', label: 'Title' },
+          { key: 'date', label: 'Date', render: (item) => formatDate(item.date) },
+        ]}
+        dialogComponent={AchievementDialog}
+      />
+
+      <CrudSection
+        tableName="hobbies"
+        title="Hobi"
+        columns={[{ key: 'name', label: 'Name' }]}
+        dialogComponent={HobbyDialog}
+      />
+    </div>
   );
 };
 
