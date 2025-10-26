@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 // Fetch social media links for the public profile
 const fetchSocialLinks = async (userId: string) => {
@@ -29,17 +29,7 @@ const NAV_ITEMS = [
 
 const PublicLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
-  // Check login status on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-    };
-    checkSession();
-  }, []);
-
   // Fetch public user ID (assuming the first profile is the public one)
   const { data: allProfiles } = useQuery({
     queryKey: ['allProfiles'],
@@ -146,15 +136,13 @@ const PublicLayout = () => {
               ))}
             </div>
             
-            {/* Admin Login Button (Desktop/Tablet) - Hidden if logged in */}
-            {!isLoggedIn && (
-              <Button asChild size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700">
-                <a href="/login">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Admin Login
-                </a>
-              </Button>
-            )}
+            {/* Admin Login Button (Desktop/Tablet) */}
+            <Button asChild size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700">
+              <a href="/login">
+                <LogIn className="h-4 w-4 mr-2" />
+                Admin Login
+              </a>
+            </Button>
 
             <Button 
               variant="ghost" 
@@ -188,15 +176,13 @@ const PublicLayout = () => {
               {item.name}
             </button>
           ))}
-          {/* Admin Login Button (Mobile) - Hidden if logged in */}
-          {!isLoggedIn && (
-            <Button asChild className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
-              <a href="/login">
-                <LogIn className="h-4 w-4 mr-2" />
-                Admin Login
-              </a>
-            </Button>
-          )}
+          {/* Admin Login Button (Mobile) */}
+          <Button asChild className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
+            <a href="/login">
+              <LogIn className="h-4 w-4 mr-2" />
+              Admin Login
+            </a>
+          </Button>
         </nav>
       </div>
 
