@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Zap } from 'lucide-react';
+import { Zap, Brain } from 'lucide-react';
 
 interface SkillsSectionProps {
   userId: string;
@@ -39,36 +39,46 @@ const SkillsSection = ({ userId }: SkillsSectionProps) => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-8">
+          {/* Hard Skills Card */}
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
-              <CardTitle className="text-2xl text-blue-600 flex items-center">
-                <Zap className="h-6 w-6 mr-2" /> Hard Skills
+              <CardTitle className="text-2xl text-gray-800 flex items-center">
+                <Zap className="h-6 w-6 mr-2 text-blue-600" /> Hard Skills
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {hardSkills.length > 0 ? hardSkills.map(skill => (
-                  <Badge key={skill.id} className="bg-gray-800 text-white hover:bg-gray-700 transition-colors text-base px-4 py-1.5">
+                  <Badge 
+                    key={skill.id} 
+                    className="bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200 transition-colors text-base px-4 py-1.5 justify-center"
+                    variant="outline"
+                  >
                     {skill.name}
                   </Badge>
-                )) : <p className="text-gray-500">No hard skills listed.</p>}
+                )) : <p className="text-gray-500 col-span-3">No hard skills listed.</p>}
               </div>
             </CardContent>
           </Card>
 
+          {/* Soft Skills Card */}
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
-              <CardTitle className="text-2xl text-blue-600 flex items-center">
-                <Zap className="h-6 w-6 mr-2" /> Soft Skills
+              <CardTitle className="text-2xl text-gray-800 flex items-center">
+                <Brain className="h-6 w-6 mr-2 text-blue-600" /> Soft Skills
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {softSkills.length > 0 ? softSkills.map(skill => (
-                  <Badge key={skill.id} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 transition-colors text-base px-4 py-1.5">
+                  <Badge 
+                    key={skill.id} 
+                    className="bg-blue-50 text-blue-700 border border-blue-300 hover:bg-blue-100 transition-colors text-base px-4 py-1.5 justify-center"
+                    variant="outline"
+                  >
                     {skill.name}
                   </Badge>
-                )) : <p className="text-gray-500">No soft skills listed.</p>}
+                )) : <p className="text-gray-500 col-span-3">No soft skills listed.</p>}
               </div>
             </CardContent>
           </Card>
