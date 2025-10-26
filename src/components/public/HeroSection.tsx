@@ -17,10 +17,24 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
     );
   }
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const headerHeight = 64; 
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - headerHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
-    <section id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center">
+    <section id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center min-h-[80vh] flex flex-col justify-center">
       <div className="flex justify-center mb-6">
-        <Avatar className="h-32 w-32 border-4 border-blue-500 shadow-lg transition-transform duration-300 hover:scale-105">
+        <Avatar className="h-32 w-32 border-4 border-blue-600 shadow-xl transition-transform duration-300 hover:scale-105">
           <AvatarImage src={avatarUrl ?? undefined} alt={profile.name || "User"} />
           <AvatarFallback className="bg-gray-200">
             <User className="h-16 w-16 text-gray-500" />
@@ -33,12 +47,12 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
       <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-fade-in delay-100">
         {profile.bio || 'Seorang profesional yang bersemangat dalam bidang teknologi dan pengembangan web. Selamat datang di portfolio saya.'}
       </p>
-      <a 
-        href="#contact" 
-        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+      <button 
+        onClick={() => scrollToSection('projects')}
+        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mx-auto"
       >
-        Hubungi Saya
-      </a>
+        Lihat Proyek
+      </button>
     </section>
   );
 };
