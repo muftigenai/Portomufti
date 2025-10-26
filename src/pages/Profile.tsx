@@ -1,9 +1,156 @@
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { showError, showSuccess } from '@/utils/toast';
+import AvatarUpload from '@/components/profile/AvatarUpload';
+
+const profileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional(),
+  bio: z.string().max(200, 'Bio must be at most 200 characters').optional(),
+  location: z.string().max(50, 'Location must be at most 50 characters').optional(),
+  photo_url: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+const fetchProfile = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') { // PGRST116: row not found
+    throw new Error(error.message);
+  }
+  return data;
+};
+
+const updateProfile = async ({ userId, ...updates }: ProfileFormValues & { userId: string }) => {
+  const { error } = await supabase.from('profiles').update(updates).eq('id', userId);
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 const Profile = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: () => fetchProfile(user!.id),
+    enabled: !!user,
+  });
+
+  const { control, handleSubmit, reset, setValue } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    values: {
+      name: profile?.name ?? '',
+      bio: profile?.bio ?? '',
+      location: profile?.location ?? '',
+      photo_url: profile?.photo_url ?? '',
+    },
+    resetOptions: {
+        keepValues: false,
+    }
+  });
+
+  const mutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      showSuccess('Profile updated successfully!');
+    },
+    onError: (error) => {
+      showError(error.message);
+    },
+  });
+
+  const onSubmit = (data: ProfileFormValues) => {
+    if (!user) return;
+    mutation.mutate({ userId: user.id, ...data });
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-1/2" />
+          <Skeleton className="h-4 w-3/4" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+        <CardFooter>
+          <Skeleton className="h-10 w-24" />
+        </CardFooter>
+      </Card>
+    );
+  }
+
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-gray-800">Profil Diri</h2>
-      <p className="mt-2 text-gray-600">Kelola informasi profil Anda di sini.</p>
-    </div>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Profil Diri</CardTitle>
+          <CardDescription>Kelola informasi profil Anda di sini.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <AvatarUpload
+            url={profile?.photo_url}
+            onUpload={(filePath) => {
+              setValue('photo_url', filePath, { shouldDirty: true });
+              // Immediately submit the form to save the new avatar URL
+              handleSubmit(onSubmit)();
+            }}
+          />
+          
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => <Input id="name" {...field} />}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+            <Controller
+              name="bio"
+              control={control}
+              render={({ field }) => <Textarea id="bio" {...field} placeholder="Tell us a little about yourself" />}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            <Controller
+              name="location"
+              control={control}
+              render={({ field }) => <Input id="location" {...field} />}
+            />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
   );
 };
 
