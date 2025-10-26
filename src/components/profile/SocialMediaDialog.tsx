@@ -17,7 +17,7 @@ const socialMediaSchema = z.object({
 
 type FormValues = z.infer<typeof socialMediaSchema>;
 
-const platforms = ['GitHub', 'LinkedIn', 'Twitter', 'Instagram', 'Facebook', 'Website'];
+const platforms = ['GitHub', 'LinkedIn', 'Twitter', 'Instagram', 'Facebook', 'Website', 'YouTube', 'TikTok'];
 
 interface SocialMediaDialogProps {
   item?: any;
