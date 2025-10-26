@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User, Instagram, Link, Youtube, Facebook, Music } from 'lucide-react';
+import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User, Instagram, Link, Youtube, Facebook } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,8 @@ import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext'; // Import useAuth
+import { useAuth } from '@/contexts/AuthContext';
+import { TiktokIcon } from '@/components/icons/TiktokIcon';
 
 // Fetch social media links for the public profile
 const fetchSocialLinks = async (userId: string) => {
@@ -29,11 +30,10 @@ const NAV_ITEMS = [
 ];
 
 const PublicLayout = () => {
-  const { session, loading } = useAuth(); // Get auth status
+  const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Fetch public user ID (assuming the first profile is the public one)
   const { data: allProfiles } = useQuery({
     queryKey: ['allProfiles'],
     queryFn: async () => {
@@ -56,12 +56,11 @@ const PublicLayout = () => {
     enabled: !!publicUserId,
   });
 
-  const activeSection = useScrollSpy(NAV_ITEMS.map(item => item.href), 80); // 80px offset for sticky header height
+  const activeSection = useScrollSpy(NAV_ITEMS.map(item => item.href), 80);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      // Calculate position considering the sticky header height (approx 64px)
       const headerHeight = 64; 
       const elementPosition = element.getBoundingClientRect().top + window.scrollY;
       const offsetPosition = elementPosition - headerHeight;
@@ -75,7 +74,6 @@ const PublicLayout = () => {
   };
 
   const handleLogout = async () => {
-    // Hapus navigasi ke /login. Pengguna akan tetap di halaman publik.
     await supabase.auth.signOut();
   };
 
@@ -99,7 +97,7 @@ const PublicLayout = () => {
       case 'youtube': return Youtube;
       case 'facebook': return Facebook;
       case 'twitter': return Link;
-      case 'tiktok': return Music; // Menggunakan ikon Music untuk TikTok
+      case 'tiktok': return TiktokIcon;
       default: return Link;
     }
   };
@@ -138,14 +136,12 @@ const PublicLayout = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
-      {/* Header (Sticky Navigation) */}
       <header className="sticky top-0 z-20 bg-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center h-16">
           <h1 className="text-xl font-extrabold text-gray-900 hover:text-blue-600 transition-colors">
             {publicProfile?.name || "Portfolio"}
           </h1>
           
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
             {NAV_ITEMS.map((item) => (
               <button
@@ -163,7 +159,6 @@ const PublicLayout = () => {
             ))}
           </nav>
 
-          {/* Social Links & Auth Button & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
             <div className="hidden lg:flex space-x-4">
               {socialLinks?.map(link => (
@@ -176,7 +171,6 @@ const PublicLayout = () => {
               ))}
             </div>
             
-            {/* Auth Button (Desktop/Tablet) */}
             <div className="hidden sm:block">
               <AuthButton />
             </div>
@@ -193,7 +187,6 @@ const PublicLayout = () => {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       <div className={cn(
         "fixed inset-x-0 top-16 z-10 bg-white shadow-xl transition-all duration-300 ease-in-out md:hidden",
         isMobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0 overflow-hidden"
@@ -213,19 +206,16 @@ const PublicLayout = () => {
               {item.name}
             </button>
           ))}
-          {/* Auth Button (Mobile) */}
           <div className="mt-4 pt-4 border-t border-gray-100">
             <AuthButton />
           </div>
         </nav>
       </div>
 
-      {/* Main Content */}
       <main className="flex-grow">
         <Outlet context={{ publicUserId, publicProfile, avatarUrl, socialLinks }} />
       </main>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-gray-400">

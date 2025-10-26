@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { showError, showSuccess } from '@/utils/toast';
-import { Loader2, Send, Github, Linkedin, Instagram, Mail, Link, Youtube, Facebook, Music } from 'lucide-react';
+import { Loader2, Send, Github, Linkedin, Instagram, Mail, Link, Youtube, Facebook } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
+import { TiktokIcon } from '@/components/icons/TiktokIcon';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -23,7 +24,7 @@ interface PublicContext {
   publicUserId: string | undefined;
   publicProfile: any;
   avatarUrl: string | null;
-  socialLinks: any[]; // Social links are now passed via context from PublicLayout
+  socialLinks: any[];
 }
 
 const getIcon = (platform: string) => {
@@ -34,13 +35,12 @@ const getIcon = (platform: string) => {
     case 'youtube': return Youtube;
     case 'facebook': return Facebook;
     case 'twitter': return Link;
-    case 'tiktok': return Music; // Menggunakan ikon Music untuk TikTok
+    case 'tiktok': return TiktokIcon;
     default: return Link;
   }
 };
 
 const ContactSection = () => {
-  // Retrieve socialLinks from the context provided by PublicLayout
   const { socialLinks } = useOutletContext<PublicContext>();
   
   const form = useForm<ContactFormValues>({
@@ -64,7 +64,6 @@ const ContactSection = () => {
       <h2 className="text-4xl font-bold text-gray-900 text-center mb-12">Hubungi Saya</h2>
       
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        {/* Social Media Links */}
         <Card className="shadow-xl p-6 flex flex-col justify-between">
           <CardHeader className="p-0 mb-6">
             <CardTitle className="text-2xl text-gray-800">Media Sosial</CardTitle>
@@ -93,7 +92,6 @@ const ContactSection = () => {
           </CardContent>
         </Card>
 
-        {/* Contact Form */}
         <Card className="shadow-2xl border-t-4 border-blue-600">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800">Kirim Pesan</CardTitle>
