@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { User, LogOut, Menu } from 'lucide-react';
+import { User, LogOut, Menu, ExternalLink } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +65,11 @@ const Header = ({ title, setSidebarOpen }: HeaderProps) => {
                 </p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate('/portfolio')}>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              <span>View Public Portfolio</span>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
