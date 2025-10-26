@@ -13,7 +13,6 @@ export const TiktokIcon = (props: React.SVGProps<SVGSVGElement>) => (
     strokeLinejoin="round"
     {...props}
   >
-    {/* Path for TikTok logo (simplified) */}
     <path d="M16 4h-2a4 4 0 1 0 0 8h2v8a4 4 0 1 1-8 0" />
   </svg>
 );
