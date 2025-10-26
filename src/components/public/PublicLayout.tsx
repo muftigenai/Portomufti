@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { Github, Linkedin, Mail, Menu, X } from 'lucide-react';
+import { Github, Linkedin, Mail, Menu, X, LogIn } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -123,9 +123,9 @@ const PublicLayout = () => {
             ))}
           </nav>
 
-          {/* Social Links & Mobile Menu Button */}
+          {/* Social Links & Admin Login Button & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
-            <div className="hidden sm:flex space-x-4">
+            <div className="hidden lg:flex space-x-4">
               {socialLinks?.map(link => (
                 <SocialLink 
                   key={link.id} 
@@ -135,6 +135,15 @@ const PublicLayout = () => {
                 />
               ))}
             </div>
+            
+            {/* Admin Login Button (Desktop/Tablet) */}
+            <Button asChild size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700">
+              <a href="/login">
+                <LogIn className="h-4 w-4 mr-2" />
+                Admin Login
+              </a>
+            </Button>
+
             <Button 
               variant="ghost" 
               size="icon" 
@@ -167,6 +176,13 @@ const PublicLayout = () => {
               {item.name}
             </button>
           ))}
+          {/* Admin Login Button (Mobile) */}
+          <Button asChild className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
+            <a href="/login">
+              <LogIn className="h-4 w-4 mr-2" />
+              Admin Login
+            </a>
+          </Button>
         </nav>
       </div>
 
