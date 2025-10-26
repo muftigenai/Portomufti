@@ -23,8 +23,8 @@ import { Loader2 } from 'lucide-react';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional().or(z.literal('')),
-  bio: z.string().max(200, 'Bio must be at most 200 characters').optional().or(z.literal('')),
-  location: z.string().max(50, 'Location must be at most 50 characters').optional().or(z.literal('')),
+  bio: z.string().optional().or(z.literal('')),
+  location: z.string().optional().or(z.literal('')),
   photo_url: z.string().optional(),
 });
 
