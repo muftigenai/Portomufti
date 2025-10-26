@@ -176,6 +176,7 @@ const Profile = () => {
         columns={[
           { key: 'institution', label: 'Institution' },
           { key: 'degree', label: 'Degree' },
+          { key: 'field_of_study', label: 'Field of Study', render: (item) => item.field_of_study || ' - ' },
           { key: 'period', label: 'Period', render: (item) => `${formatDate(item.start_date)} - ${formatDate(item.end_date)}` },
         ]}
         dialogComponent={EducationDialog}
