@@ -12,7 +12,7 @@ import { showError } from '@/utils/toast';
 
 const skillSchema = z.object({
   name: z.string().min(2, 'Skill name is required'),
-  level: z.string().optional(),
+  category: z.string().optional(),
 });
 
 type SkillFormValues = z.infer<typeof skillSchema>;
@@ -34,7 +34,7 @@ export const SkillDialog = ({ skill, isOpen, onClose, onSave }: SkillDialogProps
     if (skill) {
       reset(skill);
     } else {
-      reset({ name: '', level: '' });
+      reset({ name: '', category: '' });
     }
   }, [skill, reset]);
 
@@ -72,8 +72,8 @@ export const SkillDialog = ({ skill, isOpen, onClose, onSave }: SkillDialogProps
             <Controller name="name" control={control} render={({ field }) => <Input id="name" {...field} />} />
           </div>
           <div>
-            <Label htmlFor="level">Level (e.g., Intermediate, 80%)</Label>
-            <Controller name="level" control={control} render={({ field }) => <Input id="level" {...field} />} />
+            <Label htmlFor="category">Category (e.g., Frontend, Backend)</Label>
+            <Controller name="category" control={control} render={({ field }) => <Input id="category" {...field} />} />
           </div>
           <DialogFooter>
             <DialogClose asChild>

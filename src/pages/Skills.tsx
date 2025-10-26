@@ -85,7 +85,7 @@ const Skills = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Level</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -102,7 +102,7 @@ const Skills = () => {
                 skills.map((skill) => (
                   <TableRow key={skill.id}>
                     <TableCell className="font-medium">{skill.name}</TableCell>
-                    <TableCell>{skill.level}</TableCell>
+                    <TableCell>{skill.category}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
