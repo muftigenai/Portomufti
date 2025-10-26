@@ -87,7 +87,16 @@ export const EducationDialog = ({ item, isOpen, onClose, onSave }: EducationDial
                     {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} /></PopoverContent>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar 
+                    mode="single" 
+                    selected={field.value ?? undefined} 
+                    onSelect={field.onChange} 
+                    captionLayout="dropdown"
+                    fromYear={1950}
+                    toYear={new Date().getFullYear()}
+                  />
+                </PopoverContent>
               </Popover>
             )} />
           </div>
@@ -101,7 +110,16 @@ export const EducationDialog = ({ item, isOpen, onClose, onSave }: EducationDial
                     {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} /></PopoverContent>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar 
+                    mode="single" 
+                    selected={field.value ?? undefined} 
+                    onSelect={field.onChange} 
+                    captionLayout="dropdown"
+                    fromYear={1950}
+                    toYear={new Date().getFullYear()}
+                  />
+                </PopoverContent>
               </Popover>
             )} />
           </div>
