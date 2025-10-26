@@ -16,6 +16,8 @@ import Projects from "./pages/Projects";
 import Experience from "./pages/Experience";
 import ContactMessages from "./pages/ContactMessages";
 import Settings from "./pages/Settings";
+import PublicIndex from "./pages/PublicIndex";
+import PublicLayout from "./components/public/PublicLayout";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +29,13 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
+            <Route element={<PublicLayout />}>
+              <Route path="/portfolio" element={<PublicIndex />} />
+            </Route>
+
+            {/* Admin/Auth Routes */}
             <Route path="/login" element={<Login />} />
             
             <Route element={<ProtectedRoute />}>
