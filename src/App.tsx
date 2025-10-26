@@ -9,6 +9,13 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/layout/Layout";
+import Profile from "./pages/Profile";
+import Skills from "./pages/Skills";
+import Projects from "./pages/Projects";
+import Experience from "./pages/Experience";
+import ContactMessages from "./pages/ContactMessages";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -24,7 +31,15 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route element={<Layout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/skills" element={<Skills />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/experience" element={<Experience />} />
+                <Route path="/messages" element={<ContactMessages />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
