@@ -75,8 +75,8 @@ const PublicLayout = () => {
   };
 
   const handleLogout = async () => {
+    // Hapus navigasi ke /login. Pengguna akan tetap di halaman publik.
     await supabase.auth.signOut();
-    navigate('/login');
   };
 
   const SocialLink = ({ platform, url, Icon }: { platform: string, url: string, Icon: React.ElementType }) => (
