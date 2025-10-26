@@ -87,7 +87,12 @@ const PublicLayout = () => {
     switch (platform.toLowerCase()) {
       case 'github': return Github;
       case 'linkedin': return Linkedin;
-      default: return Mail;
+      case 'instagram': return Instagram;
+      case 'twitter': return Link;
+      case 'facebook': return Link;
+      case 'youtube': return Link;
+      case 'tiktok': return Link;
+      default: return Link;
     }
   };
 
@@ -167,7 +172,7 @@ const PublicLayout = () => {
 
       {/* Main Content */}
       <main className="flex-grow">
-        <Outlet context={{ publicUserId, publicProfile, avatarUrl }} />
+        <Outlet context={{ publicUserId, publicProfile, avatarUrl, socialLinks }} />
       </main>
 
       {/* Footer */}
