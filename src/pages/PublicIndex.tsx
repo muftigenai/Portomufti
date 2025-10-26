@@ -3,6 +3,7 @@ import SkillsSection from '@/components/public/SkillsSection';
 import ProjectsSection from '@/components/public/ProjectsSection';
 import ExperienceSection from '@/components/public/ExperienceSection';
 import ContactSection from '@/components/public/ContactSection';
+import AboutSection from '@/components/public/AboutSection';
 import { useOutletContext } from 'react-router-dom';
 
 interface PublicContext {
@@ -26,6 +27,7 @@ const PublicIndex = () => {
   return (
     <div className="space-y-20">
       <HeroSection profile={publicProfile} avatarUrl={avatarUrl} />
+      <AboutSection profile={publicProfile} />
       <SkillsSection userId={publicUserId} />
       <ProjectsSection userId={publicUserId} />
       <ExperienceSection userId={publicUserId} />
