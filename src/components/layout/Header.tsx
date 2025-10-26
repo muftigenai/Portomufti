@@ -11,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useProfile } from '@/hooks/use-profile';
 
 interface HeaderProps {
   title: string;
@@ -19,7 +21,10 @@ interface HeaderProps {
 
 const Header = ({ title, setSidebarOpen }: HeaderProps) => {
   const { user } = useAuth();
+  const { profile, getAvatarUrl } = useProfile();
   const navigate = useNavigate();
+
+  const avatarUrl = getAvatarUrl(profile?.photo_url);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -42,14 +47,19 @@ const Header = ({ title, setSidebarOpen }: HeaderProps) => {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <User className="h-5 w-5" />
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={avatarUrl ?? undefined} alt={profile?.name || "User"} />
+                <AvatarFallback>
+                  <User className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Signed in as</p>
+                <p className="text-sm font-medium leading-none">{profile?.name || 'User'}</p>
                 <p className="text-xs leading-none text-muted-foreground">
                   {user?.email}
                 </p>
