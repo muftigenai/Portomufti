@@ -38,12 +38,17 @@ const fetchProfile = async (userId: string) => {
 };
 
 const updateProfile = async ({ userId, ...updates }: ProfileFormValues & { userId: string }) => {
-  // Filter out undefined/null values before sending to Supabase update
+  // Filter out undefined/null values before sending to Supabase
   const cleanUpdates = Object.fromEntries(
     Object.entries(updates).filter(([, value]) => value !== undefined && value !== null)
   );
   
-  const { error } = await supabase.from('profiles').update(cleanUpdates).eq('id', userId);
+  // Use upsert to ensure the profile row exists or is updated
+  const { error } = await supabase.from('profiles').upsert({ 
+    id: userId, 
+    ...cleanUpdates 
+  }, { onConflict: 'id' });
+
   if (error) throw new Error(error.message);
 };
 
