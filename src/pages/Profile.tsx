@@ -17,6 +17,7 @@ import { OrgExperienceDialog } from '@/components/profile/OrgExperienceDialog';
 import { HobbyDialog } from '@/components/profile/HobbyDialog';
 import { AchievementDialog } from '@/components/profile/AchievementDialog';
 import { format } from 'date-fns';
+import { SocialMediaDialog } from '@/components/profile/SocialMediaDialog';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be at most 50 characters').optional(),
@@ -146,6 +147,16 @@ const Profile = () => {
           { key: 'date', label: 'Date', render: (item) => formatDate(item.date) },
         ]}
         dialogComponent={AchievementDialog}
+      />
+
+      <CrudSection
+        tableName="social_media_links"
+        title="Media Sosial"
+        columns={[
+          { key: 'platform', label: 'Platform' },
+          { key: 'url', label: 'URL' },
+        ]}
+        dialogComponent={SocialMediaDialog}
       />
 
       <CrudSection
