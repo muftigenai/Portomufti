@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { Briefcase, Calendar } from 'lucide-react';
+import { Calendar, Briefcase } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface ExperienceSectionProps {
   userId: string;
@@ -42,30 +43,44 @@ const ExperienceSection = ({ userId }: ExperienceSectionProps) => {
         </div>
       ) : experiences && experiences.length > 0 ? (
         <div className="space-y-8 relative before:absolute before:inset-y-0 before:left-1/2 before:-translate-x-1/2 before:w-0.5 before:bg-gray-200 before:hidden md:before:block">
-          {experiences.map((exp, index) => (
-            <div 
-              key={exp.id} 
-              className={`flex ${index % 2 === 0 ? 'md:justify-start' : 'md:justify-end'} w-full`}
-            >
-              <Card className={
-                `w-full md:w-[45%] shadow-lg transition-all duration-300 hover:shadow-xl 
-                ${index % 2 === 0 ? 'md:mr-auto' : 'md:ml-auto'}
-                `
-              }>
-                <CardHeader>
-                  <CardTitle className="text-xl text-blue-600">{exp.role}</CardTitle>
-                  <p className="text-lg font-medium text-gray-800">{exp.company}</p>
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {formatDateRange(exp.start_date, exp.end_date)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 whitespace-pre-wrap">{exp.description}</p>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+          {experiences.map((exp, index) => {
+            const isEven = index % 2 === 0;
+            
+            return (
+              <div 
+                key={exp.id} 
+                className={cn(
+                  "flex w-full relative",
+                  isEven ? 'md:justify-start' : 'md:justify-end'
+                )}
+              >
+                {/* Timeline Dot */}
+                <div className="absolute left-1/2 top-0 h-full hidden md:flex items-start justify-center z-10">
+                  <div className="w-4 h-4 bg-blue-600 rounded-full border-4 border-white shadow-md -translate-x-1/2 mt-6"></div>
+                </div>
+
+                <Card className={
+                  cn(
+                    "w-full shadow-lg transition-all duration-300 hover:shadow-xl",
+                    "md:w-[45%]",
+                    isEven ? 'md:mr-auto' : 'md:ml-auto'
+                  )
+                }>
+                  <CardHeader>
+                    <CardTitle className="text-xl text-blue-600">{exp.role}</CardTitle>
+                    <p className="text-lg font-medium text-gray-800">{exp.company}</p>
+                    <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {formatDateRange(exp.start_date, exp.end_date)}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 whitespace-pre-wrap">{exp.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
         </div>
       ) : (
         <p className="text-center text-gray-500">No experience records available yet.</p>
