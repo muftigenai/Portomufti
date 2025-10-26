@@ -33,7 +33,8 @@ const Login = () => {
           }}
           providers={[]}
           theme="light"
-          view="sign_in" // Hanya tampilkan formulir login
+          view="sign_in"
+          showLinks={false} // Menghapus tautan navigasi seperti Sign Up dan Forgot Password
         />
       </div>
     </div>
