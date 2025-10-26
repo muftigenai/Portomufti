@@ -91,6 +91,7 @@ const Profile = () => {
           <CardContent className="space-y-6">
             <AvatarUpload
               url={profile?.photo_url}
+              lastUpdated={profile?.updated_at}
               onUpload={(filePath) => {
                 setValue('photo_url', filePath, { shouldDirty: true });
                 handleSubmit(onSubmit)();

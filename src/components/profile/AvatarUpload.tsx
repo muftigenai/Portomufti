@@ -8,10 +8,11 @@ import { showError, showSuccess } from '@/utils/toast';
 
 interface AvatarUploadProps {
   url: string | null;
+  lastUpdated?: string;
   onUpload: (filePath: string) => void;
 }
 
-const AvatarUpload = ({ url, onUpload }: AvatarUploadProps) => {
+const AvatarUpload = ({ url, lastUpdated, onUpload }: AvatarUploadProps) => {
   const { user } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -19,9 +20,13 @@ const AvatarUpload = ({ url, onUpload }: AvatarUploadProps) => {
   useEffect(() => {
     if (url) {
       const { data } = supabase.storage.from('avatars').getPublicUrl(url);
-      setAvatarUrl(data.publicUrl);
+      // Add a timestamp to the URL to prevent browser caching issues
+      const timestamp = new Date(lastUpdated || Date.now()).getTime();
+      setAvatarUrl(`${data.publicUrl}?t=${timestamp}`);
+    } else {
+      setAvatarUrl(null);
     }
-  }, [url]);
+  }, [url, lastUpdated]);
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) {
