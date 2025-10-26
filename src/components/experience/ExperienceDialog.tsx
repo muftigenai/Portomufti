@@ -8,19 +8,28 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useEffect } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
 import { showError } from '@/utils/toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
+// Helper function to safely parse date strings for default values
+const safeParseDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return '';
+  try {
+    // Ensure it's in YYYY-MM-DD format for input type="date"
+    return format(parseISO(dateString), 'yyyy-MM-dd');
+  } catch {
+    return '';
+  }
+};
+
+// We change the schema to validate the input as a string in YYYY-MM-DD format
 const experienceSchema = z.object({
   role: z.string().min(2, 'Role is required'),
   company: z.string().min(2, 'Company is required'),
-  start_date: z.date({ required_error: 'Start date is required' }),
-  end_date: z.date().optional().nullable(),
+  // We expect a string in 'YYYY-MM-DD' format from input type="date"
+  start_date: z.string().min(1, 'Start date is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  end_date: z.string().optional().nullable().or(z.literal('')),
   description: z.string().optional(),
 });
 
@@ -43,22 +52,24 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
     if (experience) {
       form.reset({
         ...experience,
-        start_date: new Date(experience.start_date),
-        end_date: experience.end_date ? new Date(experience.end_date) : null,
+        // Convert date objects/strings from DB to YYYY-MM-DD string for input type="date"
+        start_date: safeParseDate(experience.start_date),
+        end_date: safeParseDate(experience.end_date),
       });
     } else {
-      form.reset({ role: '', company: '', description: '', start_date: undefined, end_date: null });
+      form.reset({ role: '', company: '', description: '', start_date: '', end_date: '' });
     }
   }, [experience, form]);
 
   const onSubmit = async (data: ExperienceFormValues) => {
     if (!user) return;
 
+    // Data is already in YYYY-MM-DD string format, ready for Supabase
     const experienceData = {
       ...data,
       user_id: user.id,
-      start_date: format(data.start_date, 'yyyy-MM-dd'),
-      end_date: data.end_date ? format(data.end_date, 'yyyy-MM-dd') : null,
+      // Ensure empty string is converted to null for optional end_date column
+      end_date: data.end_date || null,
     };
 
     const query = experience
@@ -114,31 +125,11 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                 control={form.control}
                 name="start_date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Start Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="p-0"> {/* Removed w-auto */}
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value} 
-                          onSelect={field.onChange} 
-                          captionLayout="dropdown"
-                          fromYear={1950}
-                          toYear={new Date().getFullYear()}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -147,31 +138,11 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                 control={form.control}
                 name="end_date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>End Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="p-0"> {/* Removed w-auto */}
-                        <Calendar 
-                          mode="single" 
-                          selected={field.value ?? undefined} 
-                          onSelect={field.onChange} 
-                          captionLayout="dropdown"
-                          fromYear={1950}
-                          toYear={new Date().getFullYear()}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel>End Date (Optional)</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
