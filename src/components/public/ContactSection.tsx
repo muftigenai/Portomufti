@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { showError, showSuccess } from '@/utils/toast';
-import { Loader2, Send, Github, Linkedin, Instagram, Mail, Link } from 'lucide-react';
+import { Loader2, Send, Github, Linkedin, Instagram, Mail, Link, Youtube, Facebook } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 
 const contactSchema = z.object({
@@ -31,9 +31,9 @@ const getIcon = (platform: string) => {
     case 'github': return Github;
     case 'linkedin': return Linkedin;
     case 'instagram': return Instagram;
-    case 'twitter': return Link; // Use generic link if not specific icon
-    case 'facebook': return Link;
-    case 'youtube': return Link;
+    case 'youtube': return Youtube;
+    case 'facebook': return Facebook;
+    case 'twitter': return Link;
     case 'tiktok': return Link;
     default: return Link;
   }

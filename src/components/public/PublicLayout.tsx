@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User, Instagram, Link } from 'lucide-react';
+import { Github, Linkedin, Mail, Menu, X, LogIn, LogOut, User, Instagram, Link, Youtube, Facebook } from 'lucide-react';
 import { useProfile } from '@/hooks/use-profile';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -96,9 +96,9 @@ const PublicLayout = () => {
       case 'github': return Github;
       case 'linkedin': return Linkedin;
       case 'instagram': return Instagram;
+      case 'youtube': return Youtube;
+      case 'facebook': return Facebook;
       case 'twitter': return Link;
-      case 'facebook': return Link;
-      case 'youtube': return Link;
       case 'tiktok': return Link;
       default: return Link;
     }
