@@ -128,7 +128,7 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="p-0"> {/* Removed w-auto */}
                         <Calendar 
                           mode="single" 
                           selected={field.value} 
@@ -161,7 +161,7 @@ export const ExperienceDialog = ({ experience, isOpen, onClose, onSave }: Experi
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="p-0"> {/* Removed w-auto */}
                         <Calendar 
                           mode="single" 
                           selected={field.value ?? undefined} 
