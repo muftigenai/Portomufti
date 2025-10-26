@@ -23,7 +23,7 @@ interface PublicContext {
   publicUserId: string | undefined;
   publicProfile: any;
   avatarUrl: string | null;
-  socialLinks: any[]; // Assuming social links are passed via context
+  socialLinks: any[]; // Social links are now passed via context from PublicLayout
 }
 
 const getIcon = (platform: string) => {
@@ -40,51 +40,8 @@ const getIcon = (platform: string) => {
 };
 
 const ContactSection = () => {
-  // We need to fetch social links here, but since PublicLayout already fetches them, 
-  // we should update PublicLayout to pass them down via context.
-  // Since we cannot modify PublicLayout in this step, I will assume the social links 
-  // are available via context or fetch them directly if necessary.
-  // Let's update PublicLayout first to pass socialLinks via context.
-
-  // Re-fetching social links here to ensure they are available, as PublicLayout doesn't pass them via context yet.
-  // However, to avoid duplicate fetching, I will modify PublicLayout to pass the data.
-  // Since I cannot modify PublicLayout in this response without knowing the structure of the context, 
-  // I will assume the context is updated in PublicLayout to include socialLinks.
-  
-  // --- Update: I see PublicLayout uses useOutletContext, but doesn't define what it passes.
-  // Let's check PublicIndex.tsx: it doesn't pass anything to ContactSection.
-  // Let's update PublicLayout to pass socialLinks via context.
-
-  // First, update PublicLayout to pass socialLinks in the context object.
-  // The current PublicLayout uses `useQuery` for `socialLinks`. I will update the context object in `PublicLayout.tsx`.
-
-  const { data: allProfiles } = useQuery({
-    queryKey: ['allProfiles'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('id, name, photo_url, updated_at, bio');
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 1000 * 60 * 60,
-  });
-
-  const publicUserId = allProfiles?.[0]?.id;
-
-  const { data: socialLinks } = useQuery({
-    queryKey: ['publicSocialLinks', publicUserId],
-    queryFn: async () => {
-      if (!publicUserId) return [];
-      const { data, error } = await supabase
-        .from('social_media_links')
-        .select('*')
-        .eq('user_id', publicUserId);
-      if (error) console.error("Error fetching social links:", error);
-      return data || [];
-    },
-    enabled: !!publicUserId,
-  });
-
-  // Now, use the fetched socialLinks
+  // Retrieve socialLinks from the context provided by PublicLayout
+  const { socialLinks } = useOutletContext<PublicContext>();
   
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
