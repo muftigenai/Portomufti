@@ -7,11 +7,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Fungsi untuk memformat tanggal
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return 'Present';
   const date = new Date(dateStr);
-  return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
+};
+
+const formatDescription = (desc: string | null) => {
+  if (!desc) return '';
+  // Split description by newlines and wrap each line in a list item
+  return `
+    <ul class="description-list">
+      ${desc.split('\n').map(line => `<li>${line.trim()}</li>`).join('')}
+    </ul>
+  `;
 };
 
 serve(async (req) => {
@@ -36,103 +45,97 @@ serve(async (req) => {
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     );
 
-    // Ambil semua data secara paralel
     const [
       profileRes,
       skillsRes,
       experienceRes,
       educationRes,
-      socialsRes
     ] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', userId).single(),
       supabase.from('skills').select('*').eq('user_id', userId),
       supabase.from('experience').select('*').eq('user_id', userId).order('start_date', { ascending: false }),
       supabase.from('education').select('*').eq('user_id', userId).order('start_date', { ascending: false }),
-      supabase.from('social_media_links').select('*').eq('user_id', userId)
     ]);
 
     if (profileRes.error) throw profileRes.error;
     
     const profile = profileRes.data;
-    const skills = skillsRes.data || [];
     const experiences = experienceRes.data || [];
     const educations = educationRes.data || [];
-    const socials = socialsRes.data || [];
 
-    // Buat konten HTML
+    const avatarUrl = profile.photo_url 
+      ? supabase.storage.from('avatars').getPublicUrl(profile.photo_url).data.publicUrl
+      : '';
+
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CV - ${profile.name}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
-          h1, h2 { color: #1a202c; margin-top: 0; }
-          h1 { font-size: 2.2rem; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1rem; }
-          h2 { font-size: 1.4rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 1.5rem; margin-bottom: 1rem; }
-          .contact-info { text-align: center; margin-bottom: 2rem; font-size: 0.9rem; color: #4a5568;}
-          .contact-info a { color: #2b6cb0; text-decoration: none; margin: 0 0.5rem; }
-          .section { margin-bottom: 1.5rem; }
-          .job, .edu-item { margin-bottom: 1rem; page-break-inside: avoid; }
-          .job-title { font-weight: bold; font-size: 1.1rem; }
-          .company, .institution { font-style: italic; color: #4a5568; }
-          .date { color: #718096; font-size: 0.9rem; }
-          .skills-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-          .skills-list li { background-color: #edf2f7; color: #4a5568; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.9rem; }
-          p { margin-top: 0.5rem; }
+          body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.5; color: #333; background-color: #fff; margin: 0; }
+          .page { padding: 40px; max-width: 800px; margin: auto; }
+          .header { text-align: left; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+          .header h1 { font-size: 24pt; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+          .header .contact-info { font-size: 9pt; color: #555; margin-top: 5px; }
+          .main-content { display: flex; flex-direction: row; gap: 20px; }
+          .left-col { flex-basis: 120px; flex-shrink: 0; }
+          .right-col { flex-grow: 1; }
+          .photo { width: 120px; height: auto; object-fit: cover; }
+          .summary { margin-top: 0; text-align: justify; }
+          .section-title { font-size: 14pt; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; }
+          .item { margin-bottom: 15px; page-break-inside: avoid; }
+          .item-header { display: flex; justify-content: space-between; align-items: baseline; }
+          .item-title { font-size: 11pt; font-weight: bold; margin: 0; }
+          .item-subtitle { font-style: italic; margin: 2px 0; }
+          .item-date { font-size: 10pt; color: #555; white-space: nowrap; }
+          .description-list { padding-left: 20px; margin-top: 5px; }
+          .description-list li { margin-bottom: 3px; }
         </style>
       </head>
       <body>
-        <div class="container">
-          <h1>${profile.name || 'Nama Tidak Tersedia'}</h1>
-          <div class="contact-info">
-            ${profile.location ? `<span>${profile.location}</span> | ` : ''}
-            ${socials.map(s => `<a href="${s.url}">${s.platform}</a>`).join(' | ')}
+        <div class="page">
+          <div class="header">
+            <h1>${profile.name || ''}</h1>
+            <div class="contact-info">${profile.location || ''}</div>
           </div>
-
-          <div class="section">
-            <h2>Summary</h2>
-            <p>${profile.bio || 'Bio tidak tersedia.'}</p>
+          <div class="main-content">
+            <div class="left-col">
+              ${avatarUrl ? `<img src="${avatarUrl}" alt="Profile Photo" class="photo">` : ''}
+            </div>
+            <div class="right-col">
+              <p class="summary">${profile.bio || ''}</p>
+            </div>
           </div>
-
-          <div class="section">
-            <h2>Work Experience</h2>
-            ${experiences.map(exp => `
-              <div class="job">
-                <div class="job-title">${exp.role}</div>
-                <div class="company">${exp.company}</div>
-                <div class="date">${formatDate(exp.start_date)} - ${formatDate(exp.end_date)}</div>
-                <p>${exp.description || ''}</p>
+          
+          <div class="section-title">Pendidikan</div>
+          ${educations.map(edu => `
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">${edu.institution} - ${edu.degree || ''}</div>
+                <div class="item-date">${formatDate(edu.start_date)} - ${formatDate(edu.end_date)}</div>
               </div>
-            `).join('')}
-          </div>
+              <div class="item-subtitle">${edu.field_of_study || ''}</div>
+            </div>
+          `).join('')}
 
-          <div class="section">
-            <h2>Education</h2>
-            ${educations.map(edu => `
-              <div class="edu-item">
-                <div class="job-title">${edu.institution}</div>
-                <div class="institution">${edu.degree || ''} - ${edu.field_of_study || ''}</div>
-                <div class="date">${formatDate(edu.start_date)} - ${formatDate(edu.end_date)}</div>
+          <div class="section-title">Pengalaman Kerja</div>
+          ${experiences.map(exp => `
+            <div class="item">
+              <div class="item-header">
+                <div class="item-title">${exp.company}</div>
+                <div class="item-date">${formatDate(exp.start_date)} - ${formatDate(exp.end_date)}</div>
               </div>
-            `).join('')}
-          </div>
-
-          <div class="section">
-            <h2>Skills</h2>
-            <ul class="skills-list">
-              ${skills.map(skill => `<li>${skill.name}</li>`).join('')}
-            </ul>
-          </div>
+              <div class="item-subtitle">${exp.role}</div>
+              ${formatDescription(exp.description)}
+            </div>
+          `).join('')}
         </div>
       </body>
       </html>
     `;
 
-    // Render HTML to PDF
     const pdfBuffer = await render(htmlContent);
     const pdfFilename = `CV-${profile.name?.replace(/\s+/g, '_') || 'Portfolio'}.pdf`;
 
@@ -145,6 +148,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
+    console.error(error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
