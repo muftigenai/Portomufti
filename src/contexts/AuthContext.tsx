@@ -41,10 +41,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // 2. Keep-Alive Polling
     const keepAlive = setInterval(async () => {
-      // Only run keep-alive if a session exists
-      if (supabase.auth.session()) {
-        // This call implicitly refreshes the token if it's near expiry
-        await supabase.auth.getSession();
+      // This call implicitly refreshes the token if it's near expiry
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
         console.log('Supabase session refreshed (keep-alive)');
       }
     }, KEEP_ALIVE_INTERVAL);
