@@ -64,6 +64,7 @@ const ContactSection = () => {
       <h2 className="text-4xl font-bold text-gray-900 text-center mb-12">Hubungi Saya</h2>
       
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {/* Social Media Card - Now visible on all screens */}
         <Card className="shadow-xl p-6 flex flex-col justify-between">
           <CardHeader className="p-0 mb-6">
             <CardTitle className="text-2xl text-gray-800">Media Sosial</CardTitle>
@@ -92,7 +93,8 @@ const ContactSection = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-2xl border-t-4 border-blue-600">
+        {/* Contact Form Card */}
+        <Card className="shadow-2xl border-t-4 border-blue-600 md:col-span-1">
           <CardHeader>
             <CardTitle className="text-2xl text-gray-800">Kirim Pesan</CardTitle>
           </CardHeader>
