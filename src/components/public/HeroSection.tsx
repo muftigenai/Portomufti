@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User } from 'lucide-react';
+import { User, Download } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 interface HeroSectionProps {
   profile: any;
@@ -31,6 +32,9 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
     }
   };
 
+  const cvUrl = `https://rnecujbcamhpxuyrysxe.supabase.co/functions/v1/generate-cv?user_id=${profile.id}`;
+  const cvFilename = `CV-${profile.name?.replace(/\s+/g, '_') || 'Portfolio'}.html`;
+
   return (
     <section id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center min-h-[80vh] flex flex-col justify-center">
       <div className="flex justify-center mb-6">
@@ -47,12 +51,20 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
       <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 animate-fade-in delay-100">
         {profile.bio || 'Seorang profesional yang bersemangat dalam bidang teknologi dan pengembangan web. Selamat datang di portfolio saya.'}
       </p>
-      <button 
-        onClick={() => scrollToSection('projects')}
-        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mx-auto"
-      >
-        Lihat Proyek
-      </button>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Button 
+          onClick={() => scrollToSection('projects')}
+          className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        >
+          Lihat Proyek
+        </Button>
+        <Button asChild variant="outline" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 text-base font-medium rounded-md border-gray-900 text-gray-900 hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          <a href={cvUrl} download={cvFilename}>
+            <Download className="mr-2 h-5 w-5" />
+            Unduh CV
+          </a>
+        </Button>
+      </div>
     </section>
   );
 };
