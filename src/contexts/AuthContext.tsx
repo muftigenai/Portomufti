@@ -15,6 +15,9 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
 });
 
+// Interval for keep-alive check (5 minutes in milliseconds)
+const KEEP_ALIVE_INTERVAL = 5 * 60 * 1000; 
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -30,13 +33,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     getInitialSession();
 
+    // 1. Auth State Change Listener (for automatic token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
     });
 
+    // 2. Keep-Alive Polling
+    const keepAlive = setInterval(async () => {
+      // Only run keep-alive if a session exists
+      if (supabase.auth.session()) {
+        // This call implicitly refreshes the token if it's near expiry
+        await supabase.auth.getSession();
+        console.log('Supabase session refreshed (keep-alive)');
+      }
+    }, KEEP_ALIVE_INTERVAL);
+
     return () => {
       subscription.unsubscribe();
+      clearInterval(keepAlive);
     };
   }, []);
 
