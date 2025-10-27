@@ -112,8 +112,8 @@ const AboutSection = ({ profile, userId }: AboutSectionProps) => {
       <div className="mt-12 grid md:grid-cols-2 gap-8">
         {/* Education */}
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center"><GraduationCap className="mr-3 text-blue-600"/> Pendidikan</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader><CardTitle className="flex items-center mb-2"><GraduationCap className="mr-3 text-blue-600"/> Pendidikan</CardTitle></CardHeader>
+          <CardContent className="space-y-4 min-h-[100px]">
             {isLoadingEducation ? <Skeleton className="h-20 w-full" /> : education && education.length > 0 ? education.map(item => (
               <div key={item.id}>
                 <p className="font-bold">{item.institution}</p>
@@ -126,8 +126,8 @@ const AboutSection = ({ profile, userId }: AboutSectionProps) => {
 
         {/* Organizational Experience */}
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center"><Users className="mr-3 text-blue-600"/> Pengalaman Organisasi</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader><CardTitle className="flex items-center mb-2"><Users className="mr-3 text-blue-600"/> Pengalaman Organisasi</CardTitle></CardHeader>
+          <CardContent className="space-y-4 min-h-[100px]">
             {isLoadingOrgExperience ? <Skeleton className="h-20 w-full" /> : orgExperience && orgExperience.length > 0 ? orgExperience.map(item => (
               <div key={item.id}>
                 <p className="font-bold">{item.organization}</p>
@@ -140,8 +140,8 @@ const AboutSection = ({ profile, userId }: AboutSectionProps) => {
 
         {/* Achievements */}
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center"><Trophy className="mr-3 text-blue-600"/> Prestasi</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
+          <CardHeader><CardTitle className="flex items-center mb-2"><Trophy className="mr-3 text-blue-600"/> Prestasi</CardTitle></CardHeader>
+          <CardContent className="space-y-4 min-h-[100px]">
             {isLoadingAchievements ? <Skeleton className="h-20 w-full" /> : achievements && achievements.length > 0 ? achievements.map(item => (
               <div key={item.id}>
                 <p className="font-bold">{item.title}</p>
@@ -153,8 +153,8 @@ const AboutSection = ({ profile, userId }: AboutSectionProps) => {
 
         {/* Hobbies */}
         <Card className="shadow-lg">
-          <CardHeader><CardTitle className="flex items-center"><Heart className="mr-3 text-blue-600"/> Hobi</CardTitle></CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
+          <CardHeader><CardTitle className="flex items-center mb-2"><Heart className="mr-3 text-blue-600"/> Hobi</CardTitle></CardHeader>
+          <CardContent className="flex flex-wrap gap-2 min-h-[100px]">
             {isLoadingHobbies ? <Skeleton className="h-8 w-full" /> : hobbies && hobbies.length > 0 ? hobbies.map(item => (
               <Badge key={item.id} variant="secondary" className="text-base">{item.name}</Badge>
             )) : <p className="text-gray-500">Belum ada hobi yang ditambahkan.</p>}
