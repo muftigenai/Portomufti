@@ -160,17 +160,6 @@ const PublicLayout = () => {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <div className="hidden lg:flex space-x-4">
-              {socialLinks?.map(link => (
-                <SocialLink 
-                  key={link.id} 
-                  platform={link.platform} 
-                  url={link.url} 
-                  Icon={getIcon(link.platform)} 
-                />
-              ))}
-            </div>
-            
             <div className="hidden sm:block">
               <AuthButton />
             </div>
