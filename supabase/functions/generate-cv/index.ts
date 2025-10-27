@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { render } from "https://deno.land/x/wasm_pdf/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -67,25 +68,21 @@ serve(async (req) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CV - ${profile.name}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; margin: 0; padding: 0; }
-          .container { max-width: 800px; margin: 2rem auto; background: #fff; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; }
-          h1, h2, h3 { color: #1a202c; margin-top: 0; }
-          h1 { font-size: 2.5rem; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1rem; }
-          h2 { font-size: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 2rem; margin-bottom: 1rem; }
-          .contact-info { text-align: center; margin-bottom: 2rem; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+          h1, h2 { color: #1a202c; margin-top: 0; }
+          h1 { font-size: 2.2rem; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1rem; }
+          h2 { font-size: 1.4rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+          .contact-info { text-align: center; margin-bottom: 2rem; font-size: 0.9rem; color: #4a5568;}
           .contact-info a { color: #2b6cb0; text-decoration: none; margin: 0 0.5rem; }
           .section { margin-bottom: 1.5rem; }
-          .job, .edu-item { margin-bottom: 1rem; }
+          .job, .edu-item { margin-bottom: 1rem; page-break-inside: avoid; }
           .job-title { font-weight: bold; font-size: 1.1rem; }
           .company, .institution { font-style: italic; color: #4a5568; }
           .date { color: #718096; font-size: 0.9rem; }
           .skills-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
           .skills-list li { background-color: #edf2f7; color: #4a5568; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.9rem; }
           p { margin-top: 0.5rem; }
-          @media print {
-            body { background-color: #fff; }
-            .container { box-shadow: none; border: 1px solid #ddd; margin: 0; padding: 1.5rem; }
-          }
         </style>
       </head>
       <body>
@@ -93,7 +90,7 @@ serve(async (req) => {
           <h1>${profile.name || 'Nama Tidak Tersedia'}</h1>
           <div class="contact-info">
             ${profile.location ? `<span>${profile.location}</span> | ` : ''}
-            ${socials.map(s => `<a href="${s.url}" target="_blank">${s.platform}</a>`).join(' | ')}
+            ${socials.map(s => `<a href="${s.url}">${s.platform}</a>`).join(' | ')}
           </div>
 
           <div class="section">
@@ -135,8 +132,16 @@ serve(async (req) => {
       </html>
     `;
 
-    return new Response(htmlContent, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+    // Render HTML to PDF
+    const pdfBuffer = await render(htmlContent);
+    const pdfFilename = `CV-${profile.name?.replace(/\s+/g, '_') || 'Portfolio'}.pdf`;
+
+    return new Response(pdfBuffer, {
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${pdfFilename}"`,
+      },
     });
 
   } catch (error) {

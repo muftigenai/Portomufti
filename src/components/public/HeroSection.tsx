@@ -33,7 +33,7 @@ const HeroSection = ({ profile, avatarUrl }: HeroSectionProps) => {
   };
 
   const cvUrl = `https://rnecujbcamhpxuyrysxe.supabase.co/functions/v1/generate-cv?user_id=${profile.id}`;
-  const cvFilename = `CV-${profile.name?.replace(/\s+/g, '_') || 'Portfolio'}.html`;
+  const cvFilename = `CV-${profile.name?.replace(/\s+/g, '_') || 'Portfolio'}.pdf`;
 
   return (
     <section id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center min-h-[80vh] flex flex-col justify-center">
