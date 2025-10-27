@@ -27,7 +27,7 @@ const PublicIndex = () => {
   return (
     <div className="space-y-20">
       <HeroSection profile={publicProfile} avatarUrl={avatarUrl} />
-      <AboutSection profile={publicProfile} />
+      <AboutSection profile={publicProfile} userId={publicUserId} />
       <SkillsSection userId={publicUserId} />
       <ProjectsSection userId={publicUserId} />
       <ExperienceSection userId={publicUserId} />
